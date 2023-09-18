@@ -79,6 +79,7 @@ public class ZkFinger10Plugin implements MethodCallHandler, FingerListener {
     }
 
 
+    @SuppressWarnings("deprecation")
     private static void initFingerStatusChangeListener(Registrar registrar) {
         final EventChannel statusChangeEventChannel = new EventChannel(registrar.messenger(), CHANNEL_FINGER_STATUS_CHANGE);
         statusChangeEventChannel.setStreamHandler(new EventChannel.StreamHandler() {
@@ -120,6 +121,7 @@ public class ZkFinger10Plugin implements MethodCallHandler, FingerListener {
         });
     }
 
+    @SuppressWarnings("deprecation")
     private static void initFingerImageListener(Registrar registrar) {
         final EventChannel imageEventChannel = new EventChannel(registrar.messenger(), CHANNEL_FINGER_IMAGE);
         imageEventChannel.setStreamHandler(new EventChannel.StreamHandler() {
@@ -256,7 +258,6 @@ public class ZkFinger10Plugin implements MethodCallHandler, FingerListener {
         zkFingerPrintHelper.onDestroy();
         result.success(true);
     }
-
 
 
     @Override

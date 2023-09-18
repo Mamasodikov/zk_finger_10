@@ -104,8 +104,10 @@ public class ZKFingerPrintHelper implements PluginRegistry.RequestPermissionsRes
             if (0 < (ret = ZKFingerService.merge(regtemparray[0], regtemparray[1], regtemparray[2], regTemp))) {
                 int retVal = 0;
                 retVal = ZKFingerService.save(regTemp, strUid);
+                Log.d("HELPER", Arrays.toString(regTemp));
                 if (0 == retVal) {
                     String strFeature = Base64.encodeToString(regTemp, 0, ret, Base64.NO_WRAP);
+                    Log.d("HELPER", strFeature);
                     dbManager.insertUser(strUid, strFeature);
                     mFingerListener.onStatusChange("Enroll Succeed!", FingerStatusType.ENROLL_SUCCESS, strUid, strFeature);
 //                    mFingerListener.onStatusChange("Finger registered!", FingerStatusType.FINGER_REGISTERED, strUid, strFeature);
@@ -326,7 +328,7 @@ public class ZKFingerPrintHelper implements PluginRegistry.RequestPermissionsRes
                             byte[] blobFeature = Base64.decode(strFeature, Base64.NO_WRAP);
                             ret = ZKFingerService.save(blobFeature, strID);
                             if (0 != ret) {
-                                Log.d("DATABASE","add [" + strID + "] template failed, ret=" + ret);
+                                Log.d("DATABASE", "add [" + strID + "] template failed, ret=" + ret);
                             }
                         }
                     }
