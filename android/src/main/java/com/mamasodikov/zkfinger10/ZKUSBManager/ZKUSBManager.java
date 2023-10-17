@@ -11,6 +11,7 @@ import android.hardware.usb.UsbManager;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+
 import java.util.Random;
 
 /**
@@ -36,11 +37,10 @@ public class ZKUSBManager {
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
-            if (ACTION_USB_PERMISSION.equals(action))
-            {
-                UsbDevice device = (UsbDevice)intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
+            if (ACTION_USB_PERMISSION.equals(action)) {
+                UsbDevice device = (UsbDevice) intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
 
-                //TODO: device.getProductId() is causing crash that's why hardcoded to 6997
+                //TODO: device.getProductId() and device.getVendorId() is causing crash that's why hardcoded to 6997 and 292
                 if (6997 == vid && 292 == pid) {
                     if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
                         zknirusbManagerListener.onCheckPermission(0);
@@ -48,18 +48,14 @@ public class ZKUSBManager {
                         zknirusbManagerListener.onCheckPermission(-2);
                     }
                 }
-            }
-            else if (UsbManager.ACTION_USB_DEVICE_ATTACHED.equals(action))
-            {
-                UsbDevice device = (UsbDevice)intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
-                if (device.getVendorId() == vid && 6997 == pid) {
+            } else if (UsbManager.ACTION_USB_DEVICE_ATTACHED.equals(action)) {
+                UsbDevice device = (UsbDevice) intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
+                if (6997 == vid && 292 == pid) {
                     zknirusbManagerListener.onUSBArrived(device);
                 }
-            }
-            else if (UsbManager.ACTION_USB_DEVICE_DETACHED.equals(action))
-            {
-                UsbDevice device = (UsbDevice)intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
-                if (6997 == vid && 292== pid) {
+            } else if (UsbManager.ACTION_USB_DEVICE_DETACHED.equals(action)) {
+                UsbDevice device = (UsbDevice) intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
+                if (6997 == vid && 292 == pid) {
                     zknirusbManagerListener.onUSBRemoved(device);
                 }
             }
@@ -82,16 +78,14 @@ public class ZKUSBManager {
         StringBuffer result = new StringBuffer();
         Random random = new Random();
 
-        for(int index = 0; index < length; index++) {
+        for (int index = 0; index < length; index++) {
             result.append(source.charAt(random.nextInt(source.length())));
         }
         return result.toString();
     }
 
-    public boolean registerUSBPermissionReceiver()
-    {
-        if (null == mContext || mbRegisterFilter)
-        {
+    public boolean registerUSBPermissionReceiver() {
+        if (null == mContext || mbRegisterFilter) {
             Log.d("USB Manager", "USB register false");
             return false;
         }
@@ -105,10 +99,8 @@ public class ZKUSBManager {
         return true;
     }
 
-    public void unRegisterUSBPermissionReceiver()
-    {
-        if (null == mContext || !mbRegisterFilter)
-        {
+    public void unRegisterUSBPermissionReceiver() {
+        if (null == mContext || !mbRegisterFilter) {
             return;
         }
         mContext.unregisterReceiver(usbMgrReceiver);
@@ -119,14 +111,12 @@ public class ZKUSBManager {
     //End USB Permission
     /////////////////////////////////////////////
 
-    public ZKUSBManager(@NonNull Context context, @NonNull ZKUSBManagerListener listener)
-    {
+    public ZKUSBManager(@NonNull Context context, @NonNull ZKUSBManagerListener listener) {
 
         super();
 
         Log.d("USB Manager", "USB ========== constructor ");
-        if (null == context || null == listener)
-        {
+        if (null == context || null == listener) {
             throw new NullPointerException("context or listener is null");
         }
         zknirusbManagerListener = listener;
@@ -137,36 +127,37 @@ public class ZKUSBManager {
     //0 means success
     //-1 means device no found
     //-2 means device no permission
-    public void initUSBPermission(int vid, int pid){
+    public void initUSBPermission(int vid, int pid) {
 
         Log.d("USB Manager", "USB ========== initialized ");
 
-        UsbManager usbManager = (UsbManager)mContext.getSystemService(Context.USB_SERVICE);
+        UsbManager usbManager = (UsbManager) mContext.getSystemService(Context.USB_SERVICE);
         UsbDevice usbDevice = null;
         for (UsbDevice device : usbManager.getDeviceList().values()) {
+
+
+            //TODO: device.getProductId() and device.getVendorId() is causing crash that's why hardcoded to 6997 and 292
+
             int device_vid = 6997;
             int device_pid = 292;
-            if (device_vid == vid && device_pid == pid)
-            {
+
+            if (device_vid == vid && device_pid == pid) {
                 usbDevice = device;
                 break;
             }
         }
-        if (null == usbDevice)
-        {
+        if (null == usbDevice) {
             zknirusbManagerListener.onCheckPermission(-1);
             return;
         }
         this.vid = vid;
         this.pid = pid;
-        if (!usbManager.hasPermission(usbDevice))
-        {
+        if (!usbManager.hasPermission(usbDevice)) {
 
             Intent intent = new Intent(this.ACTION_USB_PERMISSION);
             PendingIntent pendingIntent = PendingIntent.getBroadcast(mContext, 0, intent, PendingIntent.FLAG_IMMUTABLE);
             usbManager.requestPermission(usbDevice, pendingIntent);
-        }
-        else {
+        } else {
             zknirusbManagerListener.onCheckPermission(0);
         }
     }
