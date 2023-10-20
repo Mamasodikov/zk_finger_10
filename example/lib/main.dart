@@ -199,11 +199,11 @@ class _MyAppState extends State<MyApp> {
                               elevation: 5,
                               padding: const EdgeInsets.all(12.0),
                             ),
-                            onPressed: null,
-                            // onPressed: () async {
-                            //   await ZkFinger.startListen(
-                            //       userId: _registerationCodeController.text);
-                            // },
+                            // onPressed: null,
+                            onPressed: () async {
+                              await ZkFinger.startListen(
+                                  userId: _registerationCodeController.text);
+                            },
                             child: const Text(
                               'Start Listening',
                               style: TextStyle(color: Colors.white),
