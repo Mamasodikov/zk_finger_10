@@ -1,5 +1,7 @@
 // ignore_for_file: prefer_const_constructors
 
+import 'dart:convert';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -34,6 +36,7 @@ class _MyAppState extends State<MyApp> {
       TextEditingController(text: "BASE64");
   final TextEditingController _sendUrlController = TextEditingController();
   String sendUrl = 'https://google.com/';
+  String base64Image = 'base64isNotGenerated';
 
   String? score;
   String? message;
@@ -137,9 +140,21 @@ class _MyAppState extends State<MyApp> {
     score = '---';
   }
 
+  String uint8ListTob64(Uint8List uint8list) {
+    String base64String = base64Encode(uint8list);
+    String header = "data:image/png;base64,";
+    return header + base64String;
+  }
+
   void mapFingerImage(dynamic imageBytes) {
     setState(() {
-      fingerImages = imageBytes;
+      try {
+        fingerImages = imageBytes;
+        base64Image = uint8ListTob64(fingerImages!);
+        print('========= BASE64_IMAGE: $base64Image');
+      } catch (e) {
+        print(e);
+      }
     });
   }
 
@@ -157,7 +172,8 @@ class _MyAppState extends State<MyApp> {
         resizeToAvoidBottomInset: false,
         appBar: AppBar(
           backgroundColor: Colors.indigo,
-          title: const Text('FingerPrint Plugin Showcase \t\t\t\t\t\t\t\t\t <===|| Swipe left to view rest ||'),
+          title: const Text(
+              'FingerPrint Plugin Showcase \t\t\t\t\t\t\t\t\t <===|| Swipe left to view rest ||'),
         ),
         body: SingleChildScrollView(
           scrollDirection: Axis.horizontal,
@@ -434,7 +450,7 @@ class _MyAppState extends State<MyApp> {
                 headers: <String, String>{'Content-Type': 'application/json'}),
             data: {
               "date": DateTime.now().toString(),
-              "finger": _biometricController.text
+              "finger": base64Image
             });
         final data = response.data;
         print(data.toString());
