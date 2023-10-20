@@ -1,13 +1,19 @@
 // ignore_for_file: prefer_const_constructors
 
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'dart:async';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:zkfinger10/finger_status.dart';
 import 'package:zkfinger10/finger_status_type.dart';
 import 'package:zkfinger10/zk_finger.dart';
+import 'package:zkfinger10_example/network_info.dart';
+
+import 'functions.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -26,6 +32,8 @@ class _MyAppState extends State<MyApp> {
       TextEditingController(text: "MAMASODIKOV");
   final TextEditingController _biometricController =
       TextEditingController(text: "BASE64");
+  final TextEditingController _sendUrlController = TextEditingController();
+  String sendUrl = 'https://google.com/';
 
   String? score;
   String? message;
@@ -103,7 +111,8 @@ class _MyAppState extends State<MyApp> {
       resetFieldsData();
       score = fingerStatus!.data;
       message = '${fingerStatus!.id} already enrolled';
-    } else if (fingerStatus!.statusType == FingerStatusType.IDENTIFIED_SUCCESS) {
+    } else if (fingerStatus!.statusType ==
+        FingerStatusType.IDENTIFIED_SUCCESS) {
       resetFieldsData();
       message = '${fingerStatus!.id} identified';
       score = fingerStatus!.data;
@@ -138,7 +147,6 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.landscapeLeft,
       DeviceOrientation.landscapeRight,
@@ -149,217 +157,314 @@ class _MyAppState extends State<MyApp> {
         resizeToAvoidBottomInset: false,
         appBar: AppBar(
           backgroundColor: Colors.indigo,
-          title: const Text('FingerPrint Plugin Showcase'),
+          title: const Text('FingerPrint Plugin Showcase \t\t\t\t\t\t\t\t\t <===|| Swipe left to view rest ||'),
         ),
-        body: Center(
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              SizedBox(
-                width: 10,
-              ),
-              SingleChildScrollView(
-                child: LimitedBox(
-                  maxWidth: 150,
+        body: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: SizedBox(
+            width: MediaQuery.of(context).size.width + 230,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                SizedBox(
+                  width: 10,
+                ),
+                SingleChildScrollView(
+                  child: LimitedBox(
+                    maxWidth: 150,
+                    child: Column(
+                      children: <Widget>[
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.indigo,
+                              elevation: 5,
+                              padding: const EdgeInsets.all(12.0),
+                            ),
+                            onPressed: () async {
+                              await ZkFinger.openConnection();
+                            },
+                            child: const Text(
+                              'Open Connection',
+                              style: TextStyle(color: Colors.white),
+                            ),
+                          ),
+                        ),
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.indigo,
+                              elevation: 5,
+                              padding: const EdgeInsets.all(12.0),
+                            ),
+                            onPressed: null,
+                            // onPressed: () async {
+                            //   await ZkFinger.startListen(
+                            //       userId: _registerationCodeController.text);
+                            // },
+                            child: const Text(
+                              'Start Listening',
+                              style: TextStyle(color: Colors.white),
+                            ),
+                          ),
+                        ),
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.indigo,
+                              elevation: 5,
+                              padding: const EdgeInsets.all(12.0),
+                            ),
+                            onPressed: () async {
+                              await ZkFinger.registerFinger(
+                                  userId: _registerationCodeController.text);
+                            },
+                            child: Text(
+                              'Enroll Finger',
+                              style: TextStyle(color: Colors.white),
+                            ),
+                          ),
+                        ),
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.indigo,
+                              elevation: 5,
+                              padding: const EdgeInsets.all(12.0),
+                            ),
+                            onPressed: () async {
+                              await ZkFinger.identify(
+                                  userId: _registerationCodeController.text);
+                            },
+                            child: Text(
+                              'Identify Finger',
+                              style: TextStyle(color: Colors.white),
+                            ),
+                          ),
+                        ),
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.indigo,
+                              elevation: 5,
+                              padding: const EdgeInsets.all(12.0),
+                            ),
+                            onPressed: () async {
+                              await ZkFinger.clearFingerDatabase();
+                            },
+                            child: Text(
+                              'Clear finger\nDatabase',
+                              style: TextStyle(color: Colors.white),
+                            ),
+                          ),
+                        ),
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.indigo,
+                              elevation: 5,
+                              padding: const EdgeInsets.all(12.0),
+                            ),
+                            onPressed: () async {
+                              await ZkFinger.stopListen();
+                            },
+                            child: Text(
+                              'Stop Listening',
+                              style: TextStyle(color: Colors.white),
+                            ),
+                          ),
+                        ),
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.indigo,
+                              elevation: 5,
+                              padding: const EdgeInsets.all(12.0),
+                            ),
+                            onPressed: () async {
+                              await ZkFinger.closeConnection();
+                            },
+                            child: Text(
+                              'Close Connection',
+                              style: TextStyle(color: Colors.white),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                SizedBox(
+                  width: 10,
+                ),
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    fingerImages != null
+                        ? Container(
+                            decoration: BoxDecoration(
+                                border:
+                                    Border.all(color: Colors.black, width: 2)),
+                            child: Image.memory(
+                              fingerImages!,
+                              width: 150,
+                              height: 150,
+                              fit: BoxFit.contain,
+                            ),
+                          )
+                        : SizedBox(
+                            height: 150, width: 150, child: Placeholder()),
+                    Container(
+                        decoration: BoxDecoration(
+                            border: Border.all(color: Colors.black, width: 2)),
+                        height: 148,
+                        width: 154,
+                        child: _getFingerStatusImage()),
+                  ],
+                ),
+                SizedBox(
+                  width: 10,
+                ),
+                SizedBox(
+                  width: MediaQuery.of(context).size.width * .3,
+                  child: SingleChildScrollView(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: <Widget>[
+                        TextFormField(
+                          controller: _registerationCodeController,
+                          decoration:
+                              InputDecoration(labelText: "Registration Code"),
+                        ),
+                        Text('Biometric Base64 Text:',
+                            style:
+                                TextStyle(fontSize: 14, color: Colors.indigo)),
+                        TextFormField(
+                            // readOnly: true,
+                            controller: _biometricController,
+                            maxLines: null,
+                            style: TextStyle(fontSize: 15)),
+                        Text('Score: $score',
+                            style:
+                                TextStyle(fontSize: 14, color: Colors.indigo)),
+                        Text('Message: $message',
+                            style:
+                                TextStyle(fontSize: 14, color: Colors.indigo)),
+                      ],
+                    ),
+                  ),
+                ),
+                SizedBox(
+                  width: 10,
+                ),
+                Expanded(
+                  child: Padding(
+                    padding: EdgeInsets.only(top: 10),
+                    child: SizedBox(child: Text('STATUS:\n\n$statusText')),
+                  ),
+                ),
+                SizedBox(
+                  width: 10,
+                ),
+                Expanded(
                   child: Column(
-                    children: <Widget>[
-                      SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.indigo,
-                            elevation: 5,
-                            padding: const EdgeInsets.all(12.0),
-                          ),
-                          onPressed: () async {
-                            await ZkFinger.openConnection();
-                          },
-                          child: const Text(
-                            'Open Connection',
-                            style: TextStyle(color: Colors.white),
-                          ),
-                        ),
+                    children: [
+                      TextField(
+                        controller: _sendUrlController,
+                        onChanged: (text) {
+                          sendUrl = text;
+                        },
+                        decoration: InputDecoration(
+                            hintText: "Input URL with http:// or https://"),
                       ),
                       SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.indigo,
-                            elevation: 5,
-                            padding: const EdgeInsets.all(12.0),
-                          ),
-                          onPressed: () async {
-                            await ZkFinger.startListen(
-                                userId: _registerationCodeController.text);
-                          },
-                          child: const Text(
-                            'Start Listening',
-                            style: TextStyle(color: Colors.white),
-                          ),
-                        ),
+                        height: 10,
                       ),
-                      SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.indigo,
-                            elevation: 5,
-                            padding: const EdgeInsets.all(12.0),
-                          ),
-                          onPressed: () async {
-                            await ZkFinger.registerFinger(
-                                userId: _registerationCodeController.text);
-                          },
-                          child: Text(
-                            'Enroll Finger',
-                            style: TextStyle(color: Colors.white),
-                          ),
-                        ),
-                      ),
-                      SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.indigo,
-                            elevation: 5,
-                            padding: const EdgeInsets.all(12.0),
-                          ),
-                          onPressed: () async {
-                            await ZkFinger.identify(
-                                userId: _registerationCodeController.text);
-                          },
-                          child: Text(
-                            'Identify Finger',
-                            style: TextStyle(color: Colors.white),
-                          ),
-                        ),
-                      ),
-                      SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.indigo,
-                            elevation: 5,
-                            padding: const EdgeInsets.all(12.0),
-                          ),
-                          onPressed: () async {
-                            await ZkFinger.clearFingerDatabase();
-                          },
-                          child: Text(
-                            'Clear finger\nDatabase',
-                            style: TextStyle(color: Colors.white),
-                          ),
-                        ),
-                      ),
-                      SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.indigo,
-                            elevation: 5,
-                            padding: const EdgeInsets.all(12.0),
-                          ),
-                          onPressed: () async {
-                            await ZkFinger.stopListen();
-                          },
-                          child: Text(
-                            'Stop Listening',
-                            style: TextStyle(color: Colors.white),
-                          ),
-                        ),
-                      ),
-                      SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.indigo,
-                            elevation: 5,
-                            padding: const EdgeInsets.all(12.0),
-                          ),
-                          onPressed: () async {
-                            await ZkFinger.closeConnection();
-                          },
-                          child: Text(
-                            'Close Connection',
-                            style: TextStyle(color: Colors.white),
+                      LimitedBox(
+                        maxWidth: 150,
+                        child: SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.indigo,
+                              elevation: 5,
+                              padding: const EdgeInsets.all(12.0),
+                            ),
+                            onPressed: () => sendText(),
+                            child: const Text(
+                              'Send Text',
+                              style: TextStyle(color: Colors.white),
+                            ),
                           ),
                         ),
                       ),
                     ],
                   ),
                 ),
-              ),
-              SizedBox(
-                width: 10,
-              ),
-              Column(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  fingerImages != null
-                      ? Container(
-                          decoration: BoxDecoration(
-                              border:
-                                  Border.all(color: Colors.black, width: 2)),
-                          child: Image.memory(
-                            fingerImages!,
-                            width: 150,
-                            height: 150,
-                            fit: BoxFit.contain,
-                          ),
-                        )
-                      : SizedBox(height: 150, width: 150, child: Placeholder()),
-                  Container(
-                      decoration: BoxDecoration(
-                          border: Border.all(color: Colors.black, width: 2)),
-                      height: 148,
-                      width: 154,
-                      child: _getFingerStatusImage()),
-                ],
-              ),
-              SizedBox(
-                width: 10,
-              ),
-              SizedBox(
-                width: MediaQuery.of(context).size.width * .3,
-                child: SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: <Widget>[
-                      TextFormField(
-                        controller: _registerationCodeController,
-                        decoration:
-                            InputDecoration(labelText: "Registration Code"),
-                      ),
-                      Text('Biometric Base64 Text:',
-                          style: TextStyle(fontSize: 14, color: Colors.indigo)),
-                      TextFormField(
-                          // readOnly: true,
-                          controller: _biometricController,
-                          maxLines: null,
-                          style: TextStyle(fontSize: 15)),
-                      Text('Score: $score',
-                          style: TextStyle(fontSize: 14, color: Colors.indigo)),
-                      Text('Message: $message',
-                          style: TextStyle(fontSize: 14, color: Colors.indigo)),
-                    ],
-                  ),
+                SizedBox(
+                  width: 10,
                 ),
-              ),
-              SizedBox(
-                width: 10,
-              ),
-              Flexible(
-                child: Padding(
-                  padding: EdgeInsets.only(top: 10),
-                  child: SizedBox(child: Text('STATUS:\n\n$statusText')),
-                ),
-              )
-            ],
+              ],
+            ),
           ),
         ),
       ),
     );
+  }
+
+  Future<bool> sendText() async {
+    final NetworkInfo networkInfo =
+        NetworkInfoImpl(InternetConnectionChecker());
+    final Dio dio = Dio();
+
+    if (await networkInfo.isConnected) {
+      ///
+
+      try {
+        final response = await dio.post(sendUrl,
+            options: Options(
+                headers: <String, String>{'Content-Type': 'application/json'}),
+            data: {
+              "date": DateTime.now().toString(),
+              "finger": _biometricController.text
+            });
+        final data = response.data;
+        print(data.toString());
+        if (response.statusCode == 200) {
+          CustomToast.showToast(data.toString());
+          return true;
+        } else {
+          CustomToast.showToast(data.toString());
+          print(data.toString());
+          return false;
+        }
+      } on DioException catch (e) {
+        print(e.error);
+
+        if (e.type == DioExceptionType.badResponse) {
+          if (e.response != null) {
+            CustomToast.showToast('Server error: ' + "${e.response!.data}");
+            print('Server error: ' + "${e.response!.data}");
+          } else {
+            CustomToast.showToast(e.error.toString());
+          }
+        } else {
+          CustomToast.showToast(e.error.toString());
+        }
+        return false;
+      }
+    } else {
+      CustomToast.showToast("No internet!");
+      return false;
+    }
   }
 
   Widget _getFingerStatusImage() {
