@@ -1,7 +1,10 @@
 
 # zkfinger10
 
-Flutter package for ZKFingerPrint Live devices
+Flutter package for ZKFingerPrint Live devices (It's not official package)
+
+![zk9500-500x350h](https://github.com/Mamasodikov/zk_finger_10/assets/64262986/ed9a6204-7c9c-48b9-9e22-2200d0788c94)
+
 
 ## Getting Started
 
@@ -67,6 +70,8 @@ Add these lines to your app-level build.gradle if you have problems on release:
         }
     }
 ```
+
+If you have other issues related to the package you can open PR or make your own package based on the newer SDK:  https://github.com/Mamasodikov/ZKFinger10Demo
 
 Sample:
 
