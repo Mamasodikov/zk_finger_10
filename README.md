@@ -15,12 +15,15 @@ TODO:
 - In the Manifest permission section add:
 
 ```xml
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"></uses-permission>
-
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"></uses-permission>
-
-    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" /> 
-
+   <uses-permission
+        android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32" />
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32"
+        tools:ignore="ScopedStorage" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.hardware.usb.host" />
 ```
     
@@ -46,8 +49,10 @@ TODO:
     <usb-device vendor-id="6997" product-id="289" />
 </resources>
 ```
+==============
 
-Add these lines to your app-level build.gradle when you have problems on release:
+⚠️ Warning
+Add these lines to your app-level build.gradle if you have problems on release:
 
 ```gradle
     buildTypes {
