@@ -1,3 +1,7 @@
+## 0.0.2
+
+* Some hotfixes*
+
 ## 0.0.1
 
-* TODO: Describe initial release.
+* This is initial release of zkfinger10 package

@@ -1,7 +1,7 @@
 name: zkfinger10
-description: Flutter package for ZKFingerPrint Live devices
-version: 0.0.1
-homepage: https://t.me/flutterblogs
+description: The zk_finger10 plugin is used for supporting fingerprint device of zkecto with enrolling and verification feature.
+version: 0.0.2
+homepage: https://github.com/Mamasodikov/zk_finger_10
 
 environment:
   sdk: '>=3.1.0 <4.0.0'
