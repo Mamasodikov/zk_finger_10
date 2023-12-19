@@ -52,8 +52,6 @@ android {
             //Add these lines when releasing your app
             minifyEnabled false
             shrinkResources false
-            useProguard false 
-            
         }
     }
 }
