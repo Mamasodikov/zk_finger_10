@@ -1,17 +1,12 @@
 
 # zkfinger10
 
-Flutter package for ZKFingerPrint Live devices (It's not official package)
+This package can provide support for ZKTeco fingerprint scanners. Its compatible devices are SLK20R and ZK series fingerprint scanners, including ZK9500, ZK6500, ZK8500R. The package could be work on Android OS. (It's not official package)
 
 ![zk9500-500x350h](https://github.com/Mamasodikov/zk_finger_10/assets/64262986/ed9a6204-7c9c-48b9-9e22-2200d0788c94)
 
 
 ## Getting Started
-
-TODO:
-- Migrate to Android Plugin V2 embedding (to catch app lifecycles)
-- Fix SDK issues
-- Add proper documentation
 
 #### Add to Android Project:
 
@@ -72,6 +67,11 @@ Add these lines to your app-level build.gradle if you have problems on release:
 ```
 
 If you have other issues related to the package you can open PR or make your own package based on the newer SDK:  https://github.com/Mamasodikov/ZKFinger10Demo
+
+TODO:
+- Migrate to Android Plugin V2 embedding (to catch app lifecycles)
+- Fix SDK issues
+- Add proper documentation
 
 Sample:
 

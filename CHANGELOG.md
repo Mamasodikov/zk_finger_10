@@ -1,3 +1,7 @@
+## 0.0.3
+
+* minor fixes*
+
 ## 0.0.2
 
 * Some hotfixes*
