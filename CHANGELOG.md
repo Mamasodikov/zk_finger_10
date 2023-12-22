@@ -1,3 +1,8 @@
+## 0.0.4
+
+* Support for x86_64 devices (x86 via ARM emulation)
+* Bug fixes
+
 ## 0.0.3
 
 * minor fixes*

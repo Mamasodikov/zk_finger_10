@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/services.dart';
 
+///TODO: Catch app lifecycles on kill (and close connection)
 class ZkFinger {
   static const MethodChannel _channel = const MethodChannel('zkfinger');
 

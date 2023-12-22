@@ -46,7 +46,6 @@ dependencies {
     //rx Android for updating finger status
     implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
     implementation 'io.reactivex.rxjava2:rxjava:2.2.9'
-
     implementation 'com.android.support:multidex:1.0.1'
 
 //    implementation files('/Users/scorpion/Applications/FlutterSDK/flutter/bin/cache/artifacts/engine/android-arm64-release/flutter.jar')

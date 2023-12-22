@@ -48,10 +48,13 @@ android {
             // TODO: Add your own signing config for the release build.
             // Signing with the debug keys for now, so `flutter run --release` works.
             signingConfig signingConfigs.debug
-            
+
             //Add these lines when releasing your app
             minifyEnabled false
             shrinkResources false
+        }
+        debug {
+            //Can't test fingerprint on x86 debug
         }
     }
 }

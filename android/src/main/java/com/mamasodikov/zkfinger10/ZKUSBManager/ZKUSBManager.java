@@ -1,5 +1,6 @@
 package com.mamasodikov.zkfinger10.ZKUSBManager;
 
+import static android.content.ContentValues.TAG;
 
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
@@ -37,11 +38,20 @@ public class ZKUSBManager {
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
-            if (ACTION_USB_PERMISSION.equals(action)) {
-                UsbDevice device = (UsbDevice) intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
+            UsbManager usbManager = (UsbManager) mContext.getSystemService(Context.USB_SERVICE);
+            UsbDevice usbDevice = null;
+            for (UsbDevice device : usbManager.getDeviceList().values()) {
+                int device_vid = device.getVendorId();
+                int device_pid = device.getProductId();
+                if (device_vid == vid && device_pid == pid) {
+                    usbDevice = device;
+                    break;
+                }
+            }
 
-                //TODO: device.getProductId() and device.getVendorId() is causing crash that's why hardcoded to 6997 and 292
-                if (6997 == vid && 292 == pid) {
+            if (ACTION_USB_PERMISSION.equals(action)) {
+
+                if (usbDevice.getVendorId() == vid && usbDevice.getProductId() == pid) {
                     if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
                         zknirusbManagerListener.onCheckPermission(0);
                     } else {
@@ -50,12 +60,12 @@ public class ZKUSBManager {
                 }
             } else if (UsbManager.ACTION_USB_DEVICE_ATTACHED.equals(action)) {
                 UsbDevice device = (UsbDevice) intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
-                if (6997 == vid && 292 == pid) {
+                if (device.getVendorId() == vid && device.getProductId() == pid) {
                     zknirusbManagerListener.onUSBArrived(device);
                 }
             } else if (UsbManager.ACTION_USB_DEVICE_DETACHED.equals(action)) {
                 UsbDevice device = (UsbDevice) intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
-                if (6997 == vid && 292 == pid) {
+                if (device.getVendorId() == vid && device.getProductId() == pid) {
                     zknirusbManagerListener.onUSBRemoved(device);
                 }
             }
@@ -112,7 +122,6 @@ public class ZKUSBManager {
     /////////////////////////////////////////////
 
     public ZKUSBManager(@NonNull Context context, @NonNull ZKUSBManagerListener listener) {
-
         super();
 
         Log.d("USB Manager", "USB ========== constructor ");
@@ -134,13 +143,8 @@ public class ZKUSBManager {
         UsbManager usbManager = (UsbManager) mContext.getSystemService(Context.USB_SERVICE);
         UsbDevice usbDevice = null;
         for (UsbDevice device : usbManager.getDeviceList().values()) {
-
-
-            //TODO: device.getProductId() and device.getVendorId() is causing crash that's why hardcoded to 6997 and 292
-
-            int device_vid = 6997;
-            int device_pid = 292;
-
+            int device_vid = device.getVendorId();
+            int device_pid = device.getProductId();
             if (device_vid == vid && device_pid == pid) {
                 usbDevice = device;
                 break;
@@ -153,9 +157,9 @@ public class ZKUSBManager {
         this.vid = vid;
         this.pid = pid;
         if (!usbManager.hasPermission(usbDevice)) {
-
-            Intent intent = new Intent(this.ACTION_USB_PERMISSION);
+            Intent intent = new Intent(ACTION_USB_PERMISSION);
             PendingIntent pendingIntent = PendingIntent.getBroadcast(mContext, 0, intent, PendingIntent.FLAG_IMMUTABLE);
+            Log.d(TAG, "initUSBPermission:" + pendingIntent.toString());
             usbManager.requestPermission(usbDevice, pendingIntent);
         } else {
             zknirusbManagerListener.onCheckPermission(0);
