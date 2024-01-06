@@ -1,5 +1,5 @@
 
-# zkfinger10
+# zkfinger10 - ZKTeco Fingerprint scanner plugin for Flutter
 
 This package can provide support for ZKTeco fingerprint scanners. Its compatible devices are SLK20R and ZK series fingerprint scanners, including ZK9500, ZK6500, ZK8500R. The package could be work on Android OS. (It's not official package)
 
