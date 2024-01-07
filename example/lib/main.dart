@@ -81,6 +81,7 @@ class _MyAppState extends State<MyApp> {
 
   FingerStatus? fingerStatus;
   FingerStatusType? tempStatusType;
+  bool? isDeviceSupported;
 
   void updateStatus(dynamic value) {
     Map<dynamic, dynamic> statusMap = value as Map<dynamic, dynamic>;
@@ -157,8 +158,6 @@ class _MyAppState extends State<MyApp> {
       }
     });
   }
-
-  bool? isDeviceSupported;
 
   @override
   Widget build(BuildContext context) {

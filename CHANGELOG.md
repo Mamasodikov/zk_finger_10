@@ -1,3 +1,7 @@
+## 0.0.5
+
+* Hot fixes related to x86 architecture
+
 ## 0.0.4
 
 * Support for x86_64 devices (x86 via ARM emulation)

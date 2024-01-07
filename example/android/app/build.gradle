@@ -52,6 +52,11 @@ android {
             //Add these lines when releasing your app
             minifyEnabled false
             shrinkResources false
+
+            ///KEEP in mind, flutter run --release doesn't add flutter so files to all archs
+            ///If you don't filter for x86 it won't work even all archs have flutter so files, cause, flutter doesn't add so files to x86
+            //Only way to get fully functional apk for x86: run flutter apk release build and add these filters with above details
+            ndk { abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86_64' }
         }
         debug {
             //Can't test fingerprint on x86 debug

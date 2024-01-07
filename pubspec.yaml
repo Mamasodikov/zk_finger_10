@@ -1,6 +1,6 @@
 name: zkfinger10
 description: The zk_finger10 plugin is used for supporting fingerprint device of ZKTECO with enrolling and verification feature.
-version: 0.0.4
+version: 0.0.5
 homepage: https://github.com/Mamasodikov/zk_finger_10
 
 environment:
