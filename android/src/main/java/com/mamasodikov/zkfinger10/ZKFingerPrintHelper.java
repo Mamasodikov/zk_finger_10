@@ -1,7 +1,5 @@
 package com.mamasodikov.zkfinger10;
 
-import androidx.annotation.NonNull;
-
 import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
@@ -11,6 +9,8 @@ import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbManager;
 import android.util.Base64;
 import android.util.Log;
+
+import androidx.annotation.NonNull;
 
 import com.mamasodikov.zkfinger10.ZKUSBManager.ZKUSBManager;
 import com.mamasodikov.zkfinger10.ZKUSBManager.ZKUSBManagerListener;
@@ -31,6 +31,7 @@ import com.zkteco.android.biometric.module.fingerprintreader.exception.Fingerpri
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import io.flutter.plugin.common.PluginRegistry;
@@ -127,6 +128,7 @@ public class ZKFingerPrintHelper implements PluginRegistry.RequestPermissionsRes
 
     void doIdentify(byte[] template) {
         byte[] bufids = new byte[256];
+
         int ret = ZKFingerService.identify(template, bufids, 70, 1);
         if (ret > 0) {
             String[] strRes = new String(bufids).split("\t");
@@ -165,6 +167,10 @@ public class ZKFingerPrintHelper implements PluginRegistry.RequestPermissionsRes
 
         @Override
         public void extractOK(byte[] fpTemplate) {
+            // For always getting finger base64 feature
+            int length = fpTemplate.length;
+            String strFeature = Base64.encodeToString(fpTemplate, 0, length, Base64.NO_WRAP);
+            mFingerListener.onStatusChange("Finger extracted OK", FingerStatusType.FINGER_EXTRACTED, "", strFeature);
             if (bRegister) {
                 doRegister(fpTemplate);
             } else {
@@ -457,8 +463,6 @@ public class ZKFingerPrintHelper implements PluginRegistry.RequestPermissionsRes
     public void clear() {
         Log.d("ZKTeco FingerPrint", "clear");
 
-        ZKFingerService.clear();
-
         if (dbManager.clear()) {
             ZKFingerService.clear();
             mFingerListener.onStatusChange("Finger DB Cleared!", FingerStatusType.FINGER_CLEARED, "", "");
@@ -468,6 +472,60 @@ public class ZKFingerPrintHelper implements PluginRegistry.RequestPermissionsRes
         }
 
     }
+
+    public void clearAndLoad(Map<String, String> vUserList) {
+
+        //load all templates form external source
+
+        try {
+            if (dbManager.clear()) {
+                ZKFingerService.clear();
+                int ret = 0;
+                int c = 0;
+                if (vUserList.size() > 0) {
+                    for (Map.Entry<String, String> entry : vUserList.entrySet()) {
+
+                        String strID = entry.getKey();
+                        String strFeature = entry.getValue();
+                        byte[] blobFeature = Base64.decode(strFeature, Base64.NO_WRAP);
+                        dbManager.insertUser(strID, strFeature);
+                        ret = ZKFingerService.save(blobFeature, strID);
+                        Log.d("DATABASE", "ID: " + strID + " adding to DB");
+                        if (0 != ret) {
+                            Log.d("DATABASE", "add [" + strID + "] template failed, ret=" + ret);
+                        }
+                    }
+                    mFingerListener.onStatusChange("Clear DB and load success", FingerStatusType.FINGER_CLEARED_AND_LOADED, "", "");
+                }
+            } else {
+                mFingerListener.onStatusChange("Clear DB failed", FingerStatusType.FINGER_CLEAR_FAILED, "", "");
+            }
+        } catch (Exception e) {
+            System.out.println("Something went wrong on clear and laod, check again...");
+            mFingerListener.onStatusChange("Clear and load function failed", FingerStatusType.FINGER_CLEAR_FAILED, "", "");
+        }
+
+
+    }
+
+    public void verify(String strFeature1, String strFeature2) {
+
+        try {
+            byte[] blobFeature1 = Base64.decode(strFeature1, Base64.NO_WRAP);
+            byte[] blobFeature2 = Base64.decode(strFeature2, Base64.NO_WRAP);
+            double score = ZKFingerService.verify(blobFeature1, blobFeature2);
+            if (score > 70) {
+                mFingerListener.onStatusChange("Verified", FingerStatusType.VERIFIED_SUCCESS, "", Double.toString(score));
+            } else {
+                mFingerListener.onStatusChange("Verify failed", FingerStatusType.VERIFIED_FAILED, "", Double.toString(score));
+            }
+        } catch (Exception e) {
+            System.out.println("Something went wrong on verify, check again...");
+            mFingerListener.onStatusChange("Verify error", FingerStatusType.VERIFIED_ERROR, "", "");
+        }
+
+    }
+
 
     public void onDestroy() {
         if (bStarted) {

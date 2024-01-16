@@ -4,8 +4,8 @@ import 'dart:convert';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'dart:async';
+import 'package:uuid/uuid.dart';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -33,13 +33,18 @@ class _MyAppState extends State<MyApp> {
   final TextEditingController _registerationCodeController =
       TextEditingController(text: "MAMASODIKOV");
   final TextEditingController _biometricController =
-      TextEditingController(text: "BASE64");
+      TextEditingController(text: "Here will display base64 finger template");
   final TextEditingController _sendUrlController = TextEditingController();
+  final TextEditingController _idleText1 =
+      TextEditingController(text: "Copy base64 to verify");
+  final TextEditingController _idleText2 =
+      TextEditingController(text: "Copy base64 to verify");
   String sendUrl = 'https://google.com/';
   String base64Image = 'base64isNotGenerated';
 
   String? score;
   String? message;
+  Map<String, String> users = {};
 
   @override
   void dispose() {
@@ -94,7 +99,7 @@ class _MyAppState extends State<MyApp> {
 
     if (statusType == tempStatusType &&
         tempStatusType == FingerStatusType.CAPTURE_ERROR) {
-      //ignore capture error when finger device get stucked
+      //ignore capture error when finger device get stuck
       statusText = 'CAPTURE ERROR';
     } else {
       tempStatusType = statusType;
@@ -106,28 +111,44 @@ class _MyAppState extends State<MyApp> {
   }
 
   void setBiometricBase64TextField() {
-    if (fingerStatus!.statusType == FingerStatusType.ENROLL_SUCCESS) {
+    if (fingerStatus?.statusType == FingerStatusType.ENROLL_SUCCESS) {
       resetFieldsData();
-      _biometricController.text = fingerStatus!.data;
-      message = '${fingerStatus!.id} enroll';
-    } else if (fingerStatus!.statusType ==
+      _biometricController.text = fingerStatus?.data ?? 'null';
+      message = '${fingerStatus?.id} enroll';
+    } else if (fingerStatus?.statusType ==
         FingerStatusType.ENROLL_ALREADY_EXIST) {
       resetFieldsData();
-      score = fingerStatus!.data;
+      score = fingerStatus?.data;
       message = '${fingerStatus!.id} already enrolled';
+    } else if (fingerStatus?.statusType == FingerStatusType.FINGER_EXTRACTED) {
+      resetFieldsData();
+      _biometricController.text = fingerStatus?.data ?? 'null';
+      message = fingerStatus?.message;
     } else if (fingerStatus!.statusType ==
         FingerStatusType.IDENTIFIED_SUCCESS) {
       resetFieldsData();
-      message = '${fingerStatus!.id} identified';
-      score = fingerStatus!.data;
-    } else if (fingerStatus!.statusType == FingerStatusType.ENROLL_STARTED) {
+      message = '${fingerStatus?.id} identified';
+      score = fingerStatus?.data;
+    } else if (fingerStatus!.statusType == FingerStatusType.IDENTIFIED_FAILED) {
       resetFieldsData();
-      message = '${fingerStatus!.id} confirm';
-      _biometricController.text = 'Current Confirm Index ${fingerStatus!.data}';
-    } else if (fingerStatus!.statusType == FingerStatusType.ENROLL_CONFIRM) {
+      message = 'User identify failed';
+      score = fingerStatus?.data;
+    } else if (fingerStatus?.statusType == FingerStatusType.VERIFIED_SUCCESS) {
       resetFieldsData();
-      message = '${fingerStatus!.id} confirm';
-      _biometricController.text = 'Current Confirm Index ${fingerStatus!.data}';
+      message = 'Given templates are verified';
+      score = fingerStatus?.data;
+    } else if (fingerStatus?.statusType == FingerStatusType.VERIFIED_FAILED) {
+      resetFieldsData();
+      message = 'Verify failed';
+      score = fingerStatus?.data;
+    } else if (fingerStatus?.statusType == FingerStatusType.ENROLL_STARTED) {
+      resetFieldsData();
+      message = '${fingerStatus?.id} confirm';
+      _biometricController.text = 'Current Confirm Index ${fingerStatus?.data}';
+    } else if (fingerStatus?.statusType == FingerStatusType.ENROLL_CONFIRM) {
+      resetFieldsData();
+      message = '${fingerStatus?.id} confirm';
+      _biometricController.text = 'Current Confirm Index ${fingerStatus?.data}';
     } else {
       resetFieldsData();
     }
@@ -136,7 +157,7 @@ class _MyAppState extends State<MyApp> {
   }
 
   void resetFieldsData() {
-    _biometricController.text = '---';
+    // _biometricController.text = '---';
     message = '---';
     score = '---';
   }
@@ -270,6 +291,25 @@ class _MyAppState extends State<MyApp> {
                               padding: const EdgeInsets.all(12.0),
                             ),
                             onPressed: () async {
+                              await ZkFinger.verify(
+                                  finger1: _idleText1.text,
+                                  finger2: _idleText2.text);
+                            },
+                            child: Text(
+                              'Verify Finger',
+                              style: TextStyle(color: Colors.white),
+                            ),
+                          ),
+                        ),
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.indigo,
+                              elevation: 5,
+                              padding: const EdgeInsets.all(12.0),
+                            ),
+                            onPressed: () async {
                               await ZkFinger.clearFingerDatabase();
                             },
                             child: Text(
@@ -363,9 +403,9 @@ class _MyAppState extends State<MyApp> {
                             style:
                                 TextStyle(fontSize: 14, color: Colors.indigo)),
                         TextFormField(
-                            // readOnly: true,
+                            readOnly: true,
                             controller: _biometricController,
-                            maxLines: null,
+                            maxLines: 3,
                             style: TextStyle(fontSize: 15)),
                         Text('Score: $score',
                             style:
@@ -373,6 +413,11 @@ class _MyAppState extends State<MyApp> {
                         Text('Message: $message',
                             style:
                                 TextStyle(fontSize: 14, color: Colors.indigo)),
+                        Padding(
+                          padding: EdgeInsets.only(top: 10),
+                          child:
+                              SizedBox(child: Text('STATUS:\n\n$statusText')),
+                        ),
                       ],
                     ),
                   ),
@@ -381,9 +426,43 @@ class _MyAppState extends State<MyApp> {
                   width: 10,
                 ),
                 Expanded(
-                  child: Padding(
-                    padding: EdgeInsets.only(top: 10),
-                    child: SizedBox(child: Text('STATUS:\n\n$statusText')),
+                  child: SingleChildScrollView(
+                    child: Column(
+                      children: [
+                        TextFormField(
+                            decoration: InputDecoration(labelText: "FINGER 1"),
+                            readOnly: true,
+                            controller: _idleText1,
+                            maxLines: 3,
+                            style: TextStyle(fontSize: 15)),
+                        MaterialButton(
+                          onPressed: () {
+                            _idleText1.text = _biometricController.text;
+                          },
+                          color: Colors.indigo,
+                          child: Text(
+                            'Copy & Paste',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ),
+                        TextFormField(
+                            decoration: InputDecoration(labelText: "FINGER 2"),
+                            readOnly: true,
+                            controller: _idleText2,
+                            maxLines: 3,
+                            style: TextStyle(fontSize: 15)),
+                        MaterialButton(
+                          onPressed: () {
+                            _idleText2.text = _biometricController.text;
+                          },
+                          color: Colors.indigo,
+                          child: Text(
+                            'Copy & Paste',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
                 SizedBox(
@@ -392,6 +471,76 @@ class _MyAppState extends State<MyApp> {
                 Expanded(
                   child: Column(
                     children: [
+                      MaterialButton(
+                        onPressed: () {
+                          var uuid = Uuid();
+                          var id = uuid.v1();
+
+                          setState(() {
+                            users.addAll({id: _biometricController.text});
+                          });
+                        },
+                        color: Colors.indigo,
+                        child: Text(
+                          'Add finger to the list: ${users.length}',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ),
+                      MaterialButton(
+                        onPressed: () {
+                          setState(() {
+                            users.clear();
+                          });
+                        },
+                        color: Colors.red,
+                        child: Text(
+                          'Clear the list',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ),
+                      MaterialButton(
+                        onPressed: () {
+                          if (users.isNotEmpty) {
+                            ZkFinger.clearAndLoadDatabase(vUserList: users);
+                            setState(() {
+                              users.clear();
+                            });
+                          } else {
+                            CustomToast.showToast('Your list is empty');
+                          }
+                        },
+                        color: Colors.green,
+                        child: Text(
+                          'Load list to local DB',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ),
+                      MaterialButton(
+                        onPressed: () async {
+                          for (int i = 0; i < 1000; i++) {
+                            var uuid = Uuid();
+                            String id = uuid.v1(); // Generate a unique ID
+
+                            Map<String, String> entry = {
+                              id: _biometricController.text
+                            };
+                            users.addAll(entry);
+                          }
+
+                          var added = await ZkFinger.clearAndLoadDatabase(
+                                  vUserList: users) ??
+                              false;
+                          if (added) {
+                            users.clear();
+                            CustomToast.showToast('Hurray!');
+                          }
+                        },
+                        color: Colors.pink,
+                        child: Text(
+                          'Stress load 1000 to DB',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ),
                       TextField(
                         controller: _sendUrlController,
                         onChanged: (text) {
@@ -447,10 +596,7 @@ class _MyAppState extends State<MyApp> {
         final response = await dio.post(sendUrl,
             options: Options(
                 headers: <String, String>{'Content-Type': 'application/json'}),
-            data: {
-              "date": DateTime.now().toString(),
-              "finger": base64Image
-            });
+            data: {"date": DateTime.now().toString(), "finger": base64Image});
         final data = response.data;
         print(data.toString());
         if (response.statusCode == 200) {
@@ -493,12 +639,24 @@ class _MyAppState extends State<MyApp> {
     }
     Color svgColor = Colors.black12;
     switch (fingerStatus!.statusType) {
+      case FingerStatusType.FINGER_EXTRACTED:
       case FingerStatusType.STARTED_ALREADY:
       case FingerStatusType.STARTED_SUCCESS:
         svgColor = Colors.indigo;
         break;
+      case FingerStatusType.VERIFIED_SUCCESS:
+        svgColor = Colors.green;
+        break;
+      case FingerStatusType.VERIFIED_FAILED:
+        svgColor = Colors.redAccent;
+        break;
+      case FingerStatusType.VERIFIED_ERROR:
+        svgColor = Colors.red;
+        break;
       case FingerStatusType.IDENTIFIED_START_FIRST:
       case FingerStatusType.IDENTIFIED_FAILED:
+        svgColor = Colors.redAccent;
+        break;
       case FingerStatusType.IDENTIFIED_SUCCESS:
         svgColor = Colors.blue;
         break;
@@ -516,11 +674,19 @@ class _MyAppState extends State<MyApp> {
         svgColor = Colors.yellow;
         break;
       case FingerStatusType.STARTED_FAILED:
-      case FingerStatusType.STARTED_ERROR:
-      case FingerStatusType.ENROLL_FAILED:
-      case FingerStatusType.STOPPED_ERROR:
-      case FingerStatusType.CAPTURE_ERROR:
         svgColor = Colors.redAccent;
+        break;
+      case FingerStatusType.STARTED_ERROR:
+        svgColor = Colors.red;
+        break;
+      case FingerStatusType.ENROLL_FAILED:
+        svgColor = Colors.redAccent;
+        break;
+      case FingerStatusType.STOPPED_ERROR:
+        svgColor = Colors.red;
+        break;
+      case FingerStatusType.CAPTURE_ERROR:
+        svgColor = Colors.red;
         break;
       default:
         svgColor = Colors.black38;

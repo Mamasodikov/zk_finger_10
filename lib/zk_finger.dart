@@ -36,6 +36,11 @@ class ZkFinger {
     return _channel.invokeMethod('identify', <String, String?>{'id': userId});
   }
 
+  static Future<bool?> verify({String? finger1, String? finger2}) async {
+    return _channel.invokeMethod(
+        'verify', <String, String?>{'finger1': finger1, 'finger2': finger2});
+  }
+
   static Future<bool?> registerFinger({String? userId}) async {
     final bool? success = await _channel
         .invokeMethod('register', <String, String?>{'id': userId});
@@ -44,6 +49,10 @@ class ZkFinger {
 
   static Future<bool?> clearFingerDatabase() async {
     return await _channel.invokeMethod('clear');
+  }
+
+  static Future<bool?> clearAndLoadDatabase({Map<String, String>? vUserList}) async {
+    return await _channel.invokeMethod('clearAndLoad', <String, Map<String, String>? >{'fingers': vUserList});
   }
 
   static Future<bool?> delete({String? userId}) async {

@@ -1,3 +1,7 @@
+## 0.0.6
+
+* added "verify" (match 2 fingers: 1:1 comparison) and "clearAndLoad" methods (batch load to database)
+
 ## 0.0.5
 
 * Hot fixes related to x86 architecture

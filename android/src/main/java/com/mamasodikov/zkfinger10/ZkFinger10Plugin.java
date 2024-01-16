@@ -1,5 +1,7 @@
 package com.mamasodikov.zkfinger10;
 
+import static java.nio.file.Paths.get;
+
 import android.graphics.Bitmap;
 
 import com.mamasodikov.zkfinger10.util.FingerListener;
@@ -8,6 +10,8 @@ import com.mamasodikov.zkfinger10.util.FingerStatusType;
 
 import java.io.ByteArrayOutputStream;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import io.flutter.plugin.common.EventChannel;
 import io.flutter.plugin.common.MethodCall;
@@ -36,10 +40,14 @@ public class ZkFinger10Plugin implements MethodCallHandler, FingerListener {
             "stopListen";
     private static final String METHOD_FINGER_IDENTIFY =
             "identify";
+    private static final String METHOD_FINGER_VERIFY =
+            "verify";
     private static final String METHOD_FINGER_REGISTER =
             "register";
     private static final String METHOD_FINGER_CLEAR =
             "clear";
+    private static final String METHOD_CLEAR_AND_LOAD =
+            "clearAndLoad";
     private static final String METHOD_FINGER_DELETE =
             "delete";
     private static final String METHOD_ON_DESTROY =
@@ -184,11 +192,17 @@ public class ZkFinger10Plugin implements MethodCallHandler, FingerListener {
             case METHOD_FINGER_IDENTIFY:
                 identifyFinger(getUserId(call));
                 break;
+            case METHOD_FINGER_VERIFY:
+                verifyFinger(getUserFingers(call).get("finger1"), getUserFingers(call).get("finger2"));
+                break;
             case METHOD_FINGER_REGISTER:
                 registerFinger(getUserId(call));
                 break;
             case METHOD_FINGER_CLEAR:
                 clearFingers();
+                break;
+            case METHOD_CLEAR_AND_LOAD:
+                clearAndLoad(getFingersMap(call));
                 break;
             case METHOD_FINGER_DELETE:
                 deleteFinger(getUserId(call));
@@ -203,6 +217,20 @@ public class ZkFinger10Plugin implements MethodCallHandler, FingerListener {
 
     private String getUserId(MethodCall call) {
         return call.argument("id");
+    }
+
+    Map<String, String> getUserFingers(MethodCall call) {
+        Map<String, Object> fingers = (Map<String, Object>) call.arguments;
+        String finger1 = (String) fingers.get("finger1");
+        String finger2 = (String) fingers.get("finger2");
+        Map<String, String> fingersMap = new HashMap<>();
+        fingersMap.put("finger1", finger1);
+        fingersMap.put("finger2", finger2);
+        return fingersMap;
+    }
+
+    private Map<String, String> getFingersMap(MethodCall call) {
+        return call.argument("fingers");
     }
 
     private boolean isLogEnabled(MethodCall call) {
@@ -243,6 +271,17 @@ public class ZkFinger10Plugin implements MethodCallHandler, FingerListener {
         zkFingerPrintHelper.identifyFinger(userId);
         result.success(true);
     }
+
+    private void verifyFinger(String template1, String template2) {
+        zkFingerPrintHelper.verify(template1, template2);
+        result.success(true);
+    }
+
+    private void clearAndLoad(Map<String, String> vUserList) {
+        zkFingerPrintHelper.clearAndLoad(vUserList);
+        result.success(true);
+    }
+
 
     private void clearFingers() {
         zkFingerPrintHelper.clear();

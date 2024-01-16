@@ -60,13 +60,14 @@ Add these lines to your app-level build.gradle if you have problems on release:
             //Add these lines when releasing your app
             minifyEnabled false
             shrinkResources false
-            useProguard false 
+            // useProguard false 
             
         }
     }
 ```
 
 If you have other issues related to the package you can open PR or make your own package based on the newer SDK:  https://github.com/Mamasodikov/ZKFinger10Demo
+Docs: 
 
 TODO:
 - Migrate to Android Plugin V2 embedding (to catch app lifecycles)
