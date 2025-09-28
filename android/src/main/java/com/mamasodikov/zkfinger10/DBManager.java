@@ -38,7 +38,9 @@ public class DBManager {
             return false;
         }
         Cursor cursor = db.query("userinfo", null, "pin=?", new String[] { pin }, null, null, null);
-        return cursor.getCount() > 0;
+        boolean exists = cursor.getCount() > 0;
+        cursor.close();
+        return exists;
     }
 
     public boolean deleteUser(String pin)
@@ -98,7 +100,9 @@ public class DBManager {
             return 0;
         }
         Cursor cursor = db.query("userinfo", null, null, null, null, null, null);
-        return cursor.getCount();
+        int count = cursor.getCount();
+        cursor.close();
+        return count;
     }
 
     public boolean insertUser(String pin, String feature)
@@ -136,10 +140,48 @@ public class DBManager {
         }
         HashMap<String, String> map = new HashMap<String, String>();
         for (cursor.moveToFirst();!cursor.isAfterLast();cursor.moveToNext()) {
-           map.put(cursor.getString(cursor.getColumnIndex("pin")), cursor.getString(cursor.getColumnIndex("feature")));
+           map.put(cursor.getString(cursor.getColumnIndexOrThrow("pin")), cursor.getString(cursor.getColumnIndexOrThrow("feature")));
         }
         cursor.close();
         return map;
+    }
+
+    public String getUserFeature(String pin) {
+        if (!bIsOpened) {
+            opendb(dbName);
+        }
+        if (null == db) {
+            return null;
+        }
+        Cursor cursor = db.query("userinfo", new String[]{"feature"}, "pin=?", new String[] { pin }, null, null, null);
+        if (cursor.getCount() == 0) {
+            cursor.close();
+            return null;
+        }
+        cursor.moveToFirst();
+        String feature = cursor.getString(cursor.getColumnIndexOrThrow("feature"));
+        cursor.close();
+        return feature;
+    }
+
+    public boolean updateUserFeature(String pin, String feature) {
+        if (!bIsOpened) {
+            opendb(dbName);
+        }
+        if (null == db) {
+            return false;
+        }
+        ContentValues value = new ContentValues();
+        value.put("feature", feature);
+        int rowsAffected = db.update("userinfo", value, "pin=?", new String[] { pin });
+        return rowsAffected > 0;
+    }
+
+    public void closeDatabase() {
+        if (db != null && bIsOpened) {
+            db.close();
+            bIsOpened = false;
+        }
     }
 
 }

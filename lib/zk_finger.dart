@@ -62,4 +62,58 @@ class ZkFinger {
   static Future<bool?> onDestroy() async {
     return await _channel.invokeMethod('onDestroy');
   }
+
+  // New bidirectional data management methods
+
+  /// Get fingerprint feature data for a specific user ID
+  static Future<String?> getUserFeature({required String userId}) async {
+    try {
+      return await _channel.invokeMethod('getUserFeature', <String, String>{'id': userId});
+    } catch (e) {
+      return null;
+    }
+  }
+
+  /// Get all users and their fingerprint data from the database
+  static Future<Map<String, String>?> getAllUsers() async {
+    try {
+      final result = await _channel.invokeMethod('getAllUsers');
+      if (result is Map) {
+        return Map<String, String>.from(result);
+      }
+      return null;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  /// Get the total count of users in the database
+  static Future<int?> getUserCount() async {
+    try {
+      return await _channel.invokeMethod('getUserCount');
+    } catch (e) {
+      return null;
+    }
+  }
+
+  /// Update fingerprint feature data for an existing user
+  static Future<bool?> updateUserFeature({required String userId, required String feature}) async {
+    try {
+      return await _channel.invokeMethod('updateUserFeature', <String, String>{
+        'id': userId,
+        'data': feature
+      });
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Check if a user exists in the database
+  static Future<bool?> checkUserExists({required String userId}) async {
+    try {
+      return await _channel.invokeMethod('checkUserExists', <String, String>{'id': userId});
+    } catch (e) {
+      return false;
+    }
+  }
 }

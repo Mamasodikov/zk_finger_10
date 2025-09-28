@@ -17,4 +17,19 @@ pluginManagement {
 
 include ":app"
 
-apply from: "${settings.ext.flutterSdkPath}/packages/flutter_tools/gradle/app_plugin_loader.gradle"
+// Manually include the plugin
+def flutterProjectRoot = rootProject.projectDir.parentFile.toPath()
+def plugins = new Properties()
+def pluginsFile = new File(flutterProjectRoot.toFile(), '.flutter-plugins-dependencies')
+if (pluginsFile.exists()) {
+    pluginsFile.withReader('UTF-8') { reader ->
+        def json = new groovy.json.JsonSlurper().parse(reader)
+        json.plugins.android.each { plugin ->
+            def pluginDirectory = new File(plugin.path, 'android')
+            if (pluginDirectory.exists()) {
+                include ":${plugin.name}"
+                project(":${plugin.name}").projectDir = pluginDirectory
+            }
+        }
+    }
+}

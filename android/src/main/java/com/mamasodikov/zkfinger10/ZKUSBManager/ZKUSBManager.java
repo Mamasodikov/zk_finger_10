@@ -103,7 +103,12 @@ public class ZKUSBManager {
         filter.addAction(ACTION_USB_PERMISSION);
         filter.addAction(UsbManager.ACTION_USB_DEVICE_ATTACHED);
         filter.addAction(UsbManager.ACTION_USB_DEVICE_DETACHED);
-        mContext.registerReceiver(usbMgrReceiver, filter);
+        // Fix for Android API 34+ - specify receiver export flag
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+            mContext.registerReceiver(usbMgrReceiver, filter, Context.RECEIVER_NOT_EXPORTED);
+        } else {
+            mContext.registerReceiver(usbMgrReceiver, filter);
+        }
         mbRegisterFilter = true;
         Log.d("USB Manager", "USB register true");
         return true;

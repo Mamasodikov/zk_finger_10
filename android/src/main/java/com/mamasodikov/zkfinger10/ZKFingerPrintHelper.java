@@ -532,6 +532,52 @@ public class ZKFingerPrintHelper implements PluginRegistry.RequestPermissionsRes
             closeDevice();
         }
         zkusbManager.unRegisterUSBPermissionReceiver();
+        dbManager.closeDatabase();
+    }
+
+    // New bidirectional data management methods
+    public String getUserFeature(String userId) {
+        if (userId == null || userId.isEmpty()) {
+            return null;
+        }
+        return dbManager.getUserFeature(userId);
+    }
+
+    public Map<String, String> getAllUsers() {
+        return dbManager.queryUserList();
+    }
+
+    public int getUserCount() {
+        return dbManager.getCount();
+    }
+
+    public boolean updateUserFeature(String userId, String feature) {
+        if (userId == null || userId.isEmpty() || feature == null || feature.isEmpty()) {
+            return false;
+        }
+
+        // Update in database
+        boolean dbSuccess = dbManager.updateUserFeature(userId, feature);
+
+        if (dbSuccess) {
+            try {
+                // Update in ZK service as well
+                byte[] blobFeature = Base64.decode(feature, Base64.NO_WRAP);
+                int ret = ZKFingerService.save(blobFeature, userId);
+                return ret == 0;
+            } catch (Exception e) {
+                Log.e("ZKFingerPrintHelper", "Error updating feature in ZK service", e);
+                return false;
+            }
+        }
+        return false;
+    }
+
+    public boolean checkUserExists(String userId) {
+        if (userId == null || userId.isEmpty()) {
+            return false;
+        }
+        return dbManager.isUserExisted(userId);
     }
 
 }

@@ -2,7 +2,11 @@ package com.mamasodikov.zkfinger10;
 
 import static java.nio.file.Paths.get;
 
+import android.app.Activity;
+import android.content.Context;
 import android.graphics.Bitmap;
+
+import androidx.annotation.NonNull;
 
 import com.mamasodikov.zkfinger10.util.FingerListener;
 import com.mamasodikov.zkfinger10.util.FingerStatus;
@@ -13,12 +17,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import io.flutter.embedding.engine.plugins.FlutterPlugin;
+import io.flutter.embedding.engine.plugins.activity.ActivityAware;
+import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding;
+import io.flutter.plugin.common.BinaryMessenger;
 import io.flutter.plugin.common.EventChannel;
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
 import io.flutter.plugin.common.MethodChannel.Result;
-import io.flutter.plugin.common.PluginRegistry.Registrar;
+// V1 embedding removed - using V2 embedding only
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
@@ -28,7 +36,7 @@ import io.reactivex.subjects.PublishSubject;
 /**
  * ZkFingerPlugin
  */
-public class ZkFinger10Plugin implements MethodCallHandler, FingerListener {
+public class ZkFinger10Plugin implements FlutterPlugin, MethodCallHandler, ActivityAware, FingerListener {
 
     private static final String METHOD_FINGER_OPEN_CONNECTION =
             "openConnection";
@@ -52,45 +60,99 @@ public class ZkFinger10Plugin implements MethodCallHandler, FingerListener {
             "delete";
     private static final String METHOD_ON_DESTROY =
             "onDestroy";
+    private static final String METHOD_GET_USER_FEATURE =
+            "getUserFeature";
+    private static final String METHOD_GET_ALL_USERS =
+            "getAllUsers";
+    private static final String METHOD_GET_USER_COUNT =
+            "getUserCount";
+    private static final String METHOD_UPDATE_USER_FEATURE =
+            "updateUserFeature";
+    private static final String METHOD_CHECK_USER_EXISTS =
+            "checkUserExists";
 
     private static final String CHANNEL_FINGER_STATUS_CHANGE = "com.mamasodikov.zkfinger10/status_change";
     private static final String CHANNEL_FINGER_IMAGE = "com.mamasodikov.zkfinger10/finger_image";
     private static PublishSubject<FingerStatus> fingerStatusSubject = PublishSubject.create();
     private static PublishSubject<byte[]> fingerImageSubject = PublishSubject.create();
-    @SuppressWarnings("deprecation")
-    private final Registrar registrar;
+
+    private MethodChannel channel;
+    private EventChannel statusChangeEventChannel;
+    private EventChannel imageEventChannel;
+    private Context context;
+    private Activity activity;
     private ZKFingerPrintHelper zkFingerPrintHelper;
     private Result result;
 
-    @SuppressWarnings("deprecation")
-    private ZkFinger10Plugin(Registrar registrar) {
-        this.registrar = registrar;
+    public ZkFinger10Plugin() {
+        // Default constructor for V2 embedding
     }
 
-    /**
-     * Plugin registration.
-     */
-    @SuppressWarnings("deprecation")
-    public static void registerWith(Registrar registrar) {
-        final MethodChannel channel = new MethodChannel(registrar.messenger(), "zkfinger");
-        initFingerStatusChangeListener(registrar);
-        initFingerImageListener(registrar);
-
-        final ZkFinger10Plugin instance = new ZkFinger10Plugin(registrar);
-        channel.setMethodCallHandler(instance);
-
-        registrar.addViewDestroyListener(
-                view -> {
-                    instance.zkFingerPrintHelper.onDestroy();
-                    return false; // We are not interested in assuming ownership of the NativeView.
-                });
+    @Override
+    public void onAttachedToEngine(@NonNull FlutterPluginBinding flutterPluginBinding) {
+        context = flutterPluginBinding.getApplicationContext();
+        setupChannels(flutterPluginBinding.getBinaryMessenger());
     }
 
+    @Override
+    public void onDetachedFromEngine(@NonNull FlutterPluginBinding binding) {
+        teardownChannels();
+        if (zkFingerPrintHelper != null) {
+            zkFingerPrintHelper.onDestroy();
+        }
+    }
 
-    @SuppressWarnings("deprecation")
-    private static void initFingerStatusChangeListener(Registrar registrar) {
-        final EventChannel statusChangeEventChannel = new EventChannel(registrar.messenger(), CHANNEL_FINGER_STATUS_CHANGE);
-        statusChangeEventChannel.setStreamHandler(new EventChannel.StreamHandler() {
+    @Override
+    public void onAttachedToActivity(@NonNull ActivityPluginBinding binding) {
+        activity = binding.getActivity();
+    }
+
+    @Override
+    public void onDetachedFromActivityForConfigChanges() {
+        activity = null;
+    }
+
+    @Override
+    public void onReattachedToActivityForConfigChanges(@NonNull ActivityPluginBinding binding) {
+        activity = binding.getActivity();
+    }
+
+    @Override
+    public void onDetachedFromActivity() {
+        activity = null;
+    }
+
+    private void setupChannels(BinaryMessenger messenger) {
+        channel = new MethodChannel(messenger, "zkfinger");
+        channel.setMethodCallHandler(this);
+
+        statusChangeEventChannel = new EventChannel(messenger, CHANNEL_FINGER_STATUS_CHANGE);
+        statusChangeEventChannel.setStreamHandler(createStatusChangeStreamHandler());
+
+        imageEventChannel = new EventChannel(messenger, CHANNEL_FINGER_IMAGE);
+        imageEventChannel.setStreamHandler(createImageStreamHandler());
+    }
+
+    private void teardownChannels() {
+        if (channel != null) {
+            channel.setMethodCallHandler(null);
+            channel = null;
+        }
+        if (statusChangeEventChannel != null) {
+            statusChangeEventChannel.setStreamHandler(null);
+            statusChangeEventChannel = null;
+        }
+        if (imageEventChannel != null) {
+            imageEventChannel.setStreamHandler(null);
+            imageEventChannel = null;
+        }
+    }
+
+    // V1 embedding removed - using V2 embedding only
+
+
+    private EventChannel.StreamHandler createStatusChangeStreamHandler() {
+        return new EventChannel.StreamHandler() {
             @Override
             public void onListen(Object o, final EventChannel.EventSink eventSink) {
                 fingerStatusSubject.subscribeOn(Schedulers.newThread()).observeOn(AndroidSchedulers.mainThread()).subscribe(new Observer<FingerStatus>() {
@@ -107,7 +169,6 @@ public class ZkFinger10Plugin implements MethodCallHandler, FingerListener {
                         statusMap.put("data", status.getData());
                         statusMap.put("fingerStatus", status.getFingerStatusType().ordinal());
                         eventSink.success(statusMap);
-//                        eventSink.success(status);
                     }
 
                     @Override
@@ -126,13 +187,13 @@ public class ZkFinger10Plugin implements MethodCallHandler, FingerListener {
             public void onCancel(Object o) {
 
             }
-        });
+        };
     }
 
-    @SuppressWarnings("deprecation")
-    private static void initFingerImageListener(Registrar registrar) {
-        final EventChannel imageEventChannel = new EventChannel(registrar.messenger(), CHANNEL_FINGER_IMAGE);
-        imageEventChannel.setStreamHandler(new EventChannel.StreamHandler() {
+    // V1 embedding listener removed - using V2 embedding only
+
+    private EventChannel.StreamHandler createImageStreamHandler() {
+        return new EventChannel.StreamHandler() {
             @Override
             public void onListen(Object o, final EventChannel.EventSink eventSink) {
                 fingerImageSubject.subscribeOn(Schedulers.newThread()).observeOn(AndroidSchedulers.mainThread()).subscribe(new Observer<byte[]>() {
@@ -162,15 +223,17 @@ public class ZkFinger10Plugin implements MethodCallHandler, FingerListener {
             public void onCancel(Object o) {
 
             }
-        });
+        };
     }
+
+    // V1 embedding image listener removed - using V2 embedding only
 
     @Override
     public void onMethodCall(MethodCall call, Result result) {
         this.result = result;
-        if (zkFingerPrintHelper == null)
-
-            zkFingerPrintHelper = new ZKFingerPrintHelper(registrar.activity(), registrar.context(), this);
+        if (zkFingerPrintHelper == null && activity != null && context != null) {
+            zkFingerPrintHelper = new ZKFingerPrintHelper(activity, context, this);
+        }
 
 
         switch (call.method) {
@@ -209,6 +272,21 @@ public class ZkFinger10Plugin implements MethodCallHandler, FingerListener {
                 break;
             case METHOD_ON_DESTROY:
                 onDestroy();
+                break;
+            case METHOD_GET_USER_FEATURE:
+                getUserFeature(getUserId(call));
+                break;
+            case METHOD_GET_ALL_USERS:
+                getAllUsers();
+                break;
+            case METHOD_GET_USER_COUNT:
+                getUserCount();
+                break;
+            case METHOD_UPDATE_USER_FEATURE:
+                updateUserFeature(getUserId(call), getFingerData(call));
+                break;
+            case METHOD_CHECK_USER_EXISTS:
+                checkUserExists(getUserId(call));
                 break;
             default:
                 result.notImplemented();
@@ -296,6 +374,59 @@ public class ZkFinger10Plugin implements MethodCallHandler, FingerListener {
     private void onDestroy() {
         zkFingerPrintHelper.onDestroy();
         result.success(true);
+    }
+
+    private void getUserFeature(String userId) {
+        if (zkFingerPrintHelper != null) {
+            String feature = zkFingerPrintHelper.getUserFeature(userId);
+            if (feature != null) {
+                result.success(feature);
+            } else {
+                result.error("USER_NOT_FOUND", "User with ID " + userId + " not found", null);
+            }
+        } else {
+            result.error("HELPER_NOT_INITIALIZED", "ZKFingerPrintHelper not initialized", null);
+        }
+    }
+
+    private void getAllUsers() {
+        if (zkFingerPrintHelper != null) {
+            Map<String, String> users = zkFingerPrintHelper.getAllUsers();
+            if (users != null) {
+                result.success(users);
+            } else {
+                result.success(new HashMap<String, String>());
+            }
+        } else {
+            result.error("HELPER_NOT_INITIALIZED", "ZKFingerPrintHelper not initialized", null);
+        }
+    }
+
+    private void getUserCount() {
+        if (zkFingerPrintHelper != null) {
+            int count = zkFingerPrintHelper.getUserCount();
+            result.success(count);
+        } else {
+            result.error("HELPER_NOT_INITIALIZED", "ZKFingerPrintHelper not initialized", null);
+        }
+    }
+
+    private void updateUserFeature(String userId, String feature) {
+        if (zkFingerPrintHelper != null) {
+            boolean success = zkFingerPrintHelper.updateUserFeature(userId, feature);
+            result.success(success);
+        } else {
+            result.error("HELPER_NOT_INITIALIZED", "ZKFingerPrintHelper not initialized", null);
+        }
+    }
+
+    private void checkUserExists(String userId) {
+        if (zkFingerPrintHelper != null) {
+            boolean exists = zkFingerPrintHelper.checkUserExists(userId);
+            result.success(exists);
+        } else {
+            result.error("HELPER_NOT_INITIALIZED", "ZKFingerPrintHelper not initialized", null);
+        }
     }
 
 

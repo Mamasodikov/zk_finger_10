@@ -1,14 +1,63 @@
+# zkfinger10 - Modern Fingerprint Plugin for Flutter 🚀
 
-# zkfinger10 - Fingerprint plugin for Flutter
+[![pub package](https://img.shields.io/pub/v/zkfinger10.svg)](https://pub.dev/packages/zkfinger10)
+[![Flutter](https://img.shields.io/badge/Flutter-3.35.3%2B-blue.svg)](https://flutter.dev)
+[![Android](https://img.shields.io/badge/Android-API%2021%2B-green.svg)](https://developer.android.com)
 
-This package can provide support for ZKTeco fingerprint scanners. Its compatible devices are SLK20R and ZK series fingerprint scanners, including ZK9500, ZK6500, ZK8500R. The package could be work on Android OS. (It's not official package)
+A modern, fully updated Flutter plugin for ZKTeco fingerprint scanners with **Flutter v3.35.3 compatibility** and **Android Plugin V2 embedding**. This package provides comprehensive support for ZKTeco fingerprint devices including enrollment, verification, and advanced template management.
+
+## ✨ **Major v1.0.0 Update - Fully Modernized!**
+
+This plugin has been completely modernized for 2024+ Flutter development:
+- 🎯 **Flutter v3.35.3 Compatible**
+- 🔧 **Android Plugin V2 Embedding**
+- 📱 **Android API 34+ Support**
+- 🏗️ **Modern Gradle Build System**
+- 💾 **Enhanced Database Management**
+- 🔒 **Improved Security & Performance**
+
+## 📱 **Supported Devices**
+
+Compatible with ZKTeco fingerprint scanners including:
+- **SLK20R** series
+- **ZK9500** series
+- **ZK6500** series
+- **ZK8500R** series
+- Other ZKTeco USB fingerprint devices
+
+> **Note**: This is an unofficial community-maintained package
 
 ![zk9500-500x350h](https://github.com/Mamasodikov/zk_finger_10/assets/64262986/ed9a6204-7c9c-48b9-9e22-2200d0788c94)
 
 
-## Getting Started
+## 🚀 **Getting Started**
 
-#### Add to Android Project:
+### **Requirements**
+
+- **Flutter**: 3.35.0 or higher
+- **Dart SDK**: 3.1.0 or higher
+- **Android**: API 21+ (Android 5.0+)
+- **Target Android**: API 34 (Android 14)
+
+### **Installation**
+
+Add this to your package's `pubspec.yaml` file:
+
+```yaml
+dependencies:
+  zkfinger10: ^1.0.0
+```
+
+Then run:
+```bash
+flutter pub get
+```
+
+## ⚙️ **Android Configuration**
+
+### **1. Add Permissions**
+
+Add these permissions to your `android/app/src/main/AndroidManifest.xml`:
 
 - In the Manifest permission section add:
 
@@ -26,7 +75,9 @@ This package can provide support for ZKTeco fingerprint scanners. Its compatible
 ```
     
     
-- Inside the activity tag in the Manifest file add:
+### **2. Configure Activity Intent Filters**
+
+Add these intent filters inside the `<activity>` tag in your AndroidManifest.xml:
 
 ```xml
 <intent-filter>
@@ -39,7 +90,9 @@ This package can provide support for ZKTeco fingerprint scanners. Its compatible
 ```
            
            
-- In res folder add xml folder then add *device_filter.xml* with the following content:
+### **3. Add USB Device Filter**
+
+Create `android/app/src/main/res/xml/device_filter.xml` with the following content:
 
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
@@ -47,10 +100,71 @@ This package can provide support for ZKTeco fingerprint scanners. Its compatible
     <usb-device vendor-id="6997" product-id="289" />
 </resources>
 ```
-==============
 
-⚠️ Warning
-Add these lines to your app-level build.gradle if you have problems on release:
+## 📚 **API Reference**
+
+### **Core Methods**
+
+```dart
+import 'package:zkfinger10/zkfinger10.dart';
+
+// Initialize connection
+await ZkFinger.openConnection();
+
+// Register a fingerprint
+await ZkFinger.registerFinger(userId: "user123");
+
+// Identify a fingerprint
+await ZkFinger.identify();
+
+// Clear all fingerprints
+await ZkFinger.clearFingerDatabase();
+
+// Close connection
+await ZkFinger.closeConnection();
+```
+
+### **🆕 New Bidirectional Data Management**
+
+```dart
+// Get fingerprint feature data for a specific user
+String? feature = await ZkFinger.getUserFeature(userId: "user123");
+
+// Get all users and their fingerprint data
+Map<String, String>? users = await ZkFinger.getAllUsers();
+
+// Get total count of users
+int? count = await ZkFinger.getUserCount();
+
+// Update user's fingerprint feature data
+bool? success = await ZkFinger.updateUserFeature(
+  userId: "user123",
+  feature: "base64_encoded_fingerprint_data"
+);
+
+// Check if user exists
+bool? exists = await ZkFinger.checkUserExists(userId: "user123");
+```
+
+### **Event Streams**
+
+```dart
+// Listen to fingerprint status changes
+ZkFinger.fingerStatusChangeStream.listen((status) {
+  print('Status: ${status['message']}');
+});
+
+// Listen to fingerprint image data
+ZkFinger.fingerImageStream.listen((imageBytes) {
+  // Process fingerprint image
+});
+```
+
+## ⚠️ **Build Configuration**
+
+### **Release Build Settings**
+
+Add these lines to your `android/app/build.gradle` if you have problems on release:
 
 ```gradle
     buildTypes {
@@ -66,14 +180,42 @@ Add these lines to your app-level build.gradle if you have problems on release:
     }
 ```
 
-If you have other issues related to the package you can open PR or make your own package based on the newer SDK:  https://github.com/Mamasodikov/ZKFinger10Demo
-Docs: 
+## 🔧 **Troubleshooting**
 
-TODO:
-- Migrate to Android Plugin V2 embedding (to catch app lifecycles)
-- Fix SDK issues
-- Add proper documentation
+### **Common Issues**
 
-Sample:
+1. **Plugin not found**: Ensure you've run `flutter pub get` and restarted your IDE
+2. **USB permission denied**: Check that your device filter XML is correctly configured
+3. **Build errors**: Verify your Flutter and Android versions meet the requirements
+4. **Runtime crashes**: Ensure you're targeting Android API 34+ with proper permissions
+
+### **Migration from v0.x.x**
+
+If upgrading from an older version:
+
+1. **Update Flutter**: Ensure you're using Flutter 3.35.0+
+2. **Update Android**: Target API 34+ in your `build.gradle`
+3. **Check Permissions**: Verify all required permissions are added
+4. **Test Thoroughly**: The plugin now uses V2 embedding which may affect lifecycle behavior
+
+## 🤝 **Contributing**
+
+Found a bug or want to contribute?
+
+- **Issues**: [GitHub Issues](https://github.com/Mamasodikov/zk_finger_10/issues)
+- **Pull Requests**: [GitHub PRs](https://github.com/Mamasodikov/zk_finger_10/pulls)
+- **SDK Reference**: [ZKFinger10Demo](https://github.com/Mamasodikov/ZKFinger10Demo)
+
+## 📄 **License**
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 **Acknowledgments**
+
+- ZKTeco for the original SDK
+- Flutter community for continuous support
+- All contributors who helped modernize this plugin
+
+## 📱 **Sample Screenshot**
 
 ![com_example_zkfinger10_example](https://github.com/Mamasodikov/zk_finger_10/assets/64262986/91293ced-b40a-4ca3-9db3-465463815ccb)
