@@ -37,7 +37,7 @@ Compatible with ZKTeco fingerprint scanners including:
 
 > **Note**: This is an unofficial community-maintained package
 
-<div style="display: flex; justify-content: center; gap: 20px;">
+<div style="display: flex; justify-content: center;">
   <img
     width="300"
     height="300"
