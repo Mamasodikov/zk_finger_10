@@ -39,21 +39,18 @@ Compatible with ZKTeco fingerprint scanners including:
 
 > **Note**: This is an unofficial community-maintained package
 
-<div style="display: flex; justify-content: center;">
+<div style="display: flex; justify-content: center; flex-wrap: wrap; gap: 20px;">
   <img
-    width="300"
-    height="300"
-    alt="cbdd3449eef878911f5c7b6ec75365d2"
     src="https://github.com/user-attachments/assets/c105f443-e32b-4bdf-96cb-52920383851d"
+    alt="cbdd3449eef878911f5c7b6ec75365d2"
+    style="max-width: 100%; height: auto; border-radius: 10px; object-fit: contain;"
   />
   <img
-    width="400"
-    height="300"
-    alt="zk9500-500x350h"
     src="https://github.com/Mamasodikov/zk_finger_10/assets/64262986/ed9a6204-7c9c-48b9-9e22-2200d0788c94"
+    alt="zk9500-500x350h"
+    style="max-width: 100%; height: auto; border-radius: 10px; object-fit: contain;"
   />
 </div>
-
 
 ## 🚀 **Getting Started**
 
