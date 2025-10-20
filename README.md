@@ -5,7 +5,6 @@
 [![pub package](https://img.shields.io/pub/v/zkfinger10.svg)](https://pub.dev/packages/zkfinger10)
 [![Flutter](https://img.shields.io/badge/Flutter-3.35.3%2B-blue.svg)](https://flutter.dev)
 [![Android](https://img.shields.io/badge/Android-API%2021%2B-green.svg)](https://developer.android.com)
-
 [![Stand with Palestine](https://img.shields.io/badge/🇵🇸%20%20Stand%20With%20Palestine-007A3D?style=plastic&logo=liberapay&logoColor=white&labelColor=007A3D)](https://www.islamic-relief.org.uk/giving/appeals/palestine/)
 
 ## 📱 **Sample Screenshot**
@@ -39,22 +38,19 @@ Compatible with ZKTeco fingerprint scanners including:
 
 > **Note**: This is an unofficial community-maintained package
 
-<div style="display: flex; justify-content: center; flex-wrap: wrap; gap: 20px;">
+<p align="center">
   <img
-    src="https://github.com/user-attachments/assets/c105f443-e32b-4bdf-96cb-52920383851d"
-    alt="cbdd3449eef878911f5c7b6ec75365d2"
+    src="https://github.com/user-attachments/assets/2fac6ad2-b718-4289-86a3-6b47b4563d27"
+    alt="cbdd3449eef878911f5c7b6ec75365d2-300x300 (1)"
     style="max-width: 100%; height: auto; border-radius: 10px; object-fit: contain;"
   />
-  <img
-    src="https://github.com/Mamasodikov/zk_finger_10/assets/64262986/ed9a6204-7c9c-48b9-9e22-2200d0788c94"
-    alt="zk9500-500x350h"
-    style="max-width: 100%; height: auto; border-radius: 10px; object-fit: contain;"
-  />
-</div>
+</p>
+
 
 ## 🚀 **Getting Started**
 
 ### **Requirements**
+
 
 - **Flutter**: 3.35.0 or higher
 - **Dart SDK**: 3.1.0 or higher
