@@ -10,7 +10,9 @@
 
 ## 📱 **Sample Screenshot**
 
+<div style="display: flex; justify-content: center;">
 <img width="984" height="683" alt="Screenshot 2025-10-20 at 14 15 29" src="https://github.com/user-attachments/assets/16b58850-d612-41fb-ab2d-dbc6525abdc7" />
+</div>
 
 A modern, fully updated Flutter plugin for ZKTeco fingerprint scanners with **Flutter v3.35.3 compatibility** and **Android Plugin V2 embedding**. This package provides comprehensive support for ZKTeco fingerprint devices including enrollment, verification, and advanced template management.
 
@@ -43,7 +45,7 @@ Compatible with ZKTeco fingerprint scanners including:
     src="https://github.com/user-attachments/assets/c105f443-e32b-4bdf-96cb-52920383851d"
   />
   <img
-    width="300"
+    width="400"
     height="300"
     alt="zk9500-500x350h"
     src="https://github.com/Mamasodikov/zk_finger_10/assets/64262986/ed9a6204-7c9c-48b9-9e22-2200d0788c94"
