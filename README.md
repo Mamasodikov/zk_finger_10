@@ -1,8 +1,18 @@
+<div align="center"><a href="https://github.com/Safouene1/support-palestine-banner/blob/master/Markdown-pages/Support.md"><img src="https://raw.githubusercontent.com/Safouene1/support-palestine-banner/master/banner-project.svg" alt="Support Palestine" style="width: 100%;"></a></div>
+
 # zkfinger10 - Modern Fingerprint Plugin for Flutter 🚀
 
 [![pub package](https://img.shields.io/pub/v/zkfinger10.svg)](https://pub.dev/packages/zkfinger10)
 [![Flutter](https://img.shields.io/badge/Flutter-3.35.3%2B-blue.svg)](https://flutter.dev)
 [![Android](https://img.shields.io/badge/Android-API%2021%2B-green.svg)](https://developer.android.com)
+
+[![Stand with Palestine](https://img.shields.io/badge/🇵🇸%20%20Stand%20With%20Palestine-007A3D?style=plastic&logo=liberapay&logoColor=white&labelColor=007A3D)](https://www.islamic-relief.org.uk/giving/appeals/palestine/)
+
+## 📱 **Sample Screenshot**
+
+<img width="326" height="687" alt="Screenshot 2025-10-20 at 11 06 34" src="https://github.com/user-attachments/assets/c5812e14-62cb-41a6-b1ac-8d7e177272d3" />
+<img width="327" height="688" alt="Screenshot 2025-10-20 at 11 08 02" src="https://github.com/user-attachments/assets/655ef8b1-a08c-40ab-94de-59d5abbea675" />
+<img width="324" height="684" alt="Screenshot 2025-10-20 at 11 06 43" src="https://github.com/user-attachments/assets/d60e3cb4-6af4-40d5-bf7c-417690cbe673" />
 
 A modern, fully updated Flutter plugin for ZKTeco fingerprint scanners with **Flutter v3.35.3 compatibility** and **Android Plugin V2 embedding**. This package provides comprehensive support for ZKTeco fingerprint devices including enrollment, verification, and advanced template management.
 
@@ -27,7 +37,7 @@ Compatible with ZKTeco fingerprint scanners including:
 
 > **Note**: This is an unofficial community-maintained package
 
-![zk9500-500x350h](https://github.com/Mamasodikov/zk_finger_10/assets/64262986/ed9a6204-7c9c-48b9-9e22-2200d0788c94)
+<img width="300" height="300" alt="cbdd3449eef878911f5c7b6ec75365d2-300x300" src="https://github.com/user-attachments/assets/c105f443-e32b-4bdf-96cb-52920383851d" />  ![zk9500-500x350h](https://github.com/Mamasodikov/zk_finger_10/assets/64262986/ed9a6204-7c9c-48b9-9e22-2200d0788c94)
 
 
 ## 🚀 **Getting Started**
@@ -215,7 +225,3 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - ZKTeco for the original SDK
 - Flutter community for continuous support
 - All contributors who helped modernize this plugin
-
-## 📱 **Sample Screenshot**
-
-![com_example_zkfinger10_example](https://github.com/Mamasodikov/zk_finger_10/assets/64262986/91293ced-b40a-4ca3-9db3-465463815ccb)
